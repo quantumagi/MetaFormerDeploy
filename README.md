@@ -21,7 +21,14 @@ To get the application up and running, follow these steps:
    cd MetaFormerDeploy
    ```
 
-3. Build and start the containers.
+3. Add an .env file with the credentials of the Django Sqlite database.
+   ```sh
+   SUPERUSER_USERNAME=testuser
+   SUPERUSER_EMAIL=test@example.com
+   SUPERUSER_PASSWORD=testpassword
+   ```
+
+4. Build and start the containers.
    ```sh
    docker-compose up --build
    ```
