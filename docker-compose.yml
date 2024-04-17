@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database Service
+  db:
+    image: postgres:13
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"  # Expose PostgreSQL port on the host for direct access
+
+  # Redis Service
+  redis:
+    image: redis:7.2.4
+    ports:
+      - "6379:6379"  # Expose Redis port on the host for direct access
+
+  # Django Application Service
+  django:
+    build:
+      context: https://github.com/quantumagi/MetaFormer.git
+      # If the Dockerfile is not at the root, specify it like this:
+      # dockerfile: Dockerfile
+    command: python manage.py runserver 0.0.0.0:8000
+    ports:
+      - "8000:8000"  # Map port 8000 inside the container to port 8000 on the host
+    depends_on:
+      - db
+      - redis
+    environment:
+      - DEBUG=1  # Set environment variables as needed
+      - DATABASE_URL=postgres://user:password@db:5432/postgres
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+
+  # Celery Service
+  celery:
+    build:
+      context: https://github.com/quantumagi/MetaFormer.git
+      # If the Dockerfile is not at the root, specify it like this:
+      # dockerfile: Dockerfile
+    command: celery -A metaformer worker --loglevel=info
+    depends_on:
+      - db
+      - redis
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+
+  # React Frontend Service
+  frontend:
+    build:
+      context: https://github.com/yourusername/MetaFormerClient.git
+      # If the Dockerfile is not at the root, specify it like this:
+      # dockerfile: Dockerfile
+    ports:
+      - "3000:3000"  # Expose React app on port 3000
+    depends_on:
+      - django  # Assuming the frontend needs to wait for backend to start
+
+volumes:
+  postgres_data:  # Persistent volume for PostgreSQL data
+
