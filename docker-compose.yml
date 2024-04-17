@@ -26,6 +26,8 @@ services:
       # If the Dockerfile is not at the root, specify it like this:
       # dockerfile: Dockerfile
     command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./MetaFormer:/app  # Ensure Django and Celery share the same volume
     ports:
       - "8000:8000"  # Map port 8000 inside the container to port 8000 on the host
     depends_on:
@@ -43,7 +45,9 @@ services:
       context: https://github.com/quantumagi/MetaFormer.git
       # If the Dockerfile is not at the root, specify it like this:
       # dockerfile: Dockerfile
-    command: celery -A metaformer worker --loglevel=info
+    command: celery -A metaformer  worker --loglevel=debug --concurrency=30 -E -Ofair -P eventlet
+    volumes:
+      - ./MetaFormer:/app  # Ensure Django and Celery share the same volume
     depends_on:
       - db
       - redis
@@ -54,7 +58,7 @@ services:
   # React Frontend Service
   frontend:
     build:
-      context: https://github.com/yourusername/MetaFormerClient.git
+      context: https://github.com/quantumagi/MetaFormerClient.git
       # If the Dockerfile is not at the root, specify it like this:
       # dockerfile: Dockerfile
     ports:
