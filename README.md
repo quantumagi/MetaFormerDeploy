@@ -33,7 +33,7 @@ To get the application up and running, follow these steps:
    docker-compose up --build
    ```
 
-This will start the various services as specified in docker-compose.yml. The Django application will perform database migrations, create a test user (if in DEBUG mode), and start the development server. The Celery worker will also start, and the React frontend will be available on port 3000.
+This will start the various services as specified in docker-compose.yml. The Django application will perform database migrations, create the SQLite user, and start the development server. The Celery worker will also start, and the React frontend will be available on port 3000.
 
 ### Services
 The docker-compose.yml file defines the following services:
@@ -43,17 +43,6 @@ The docker-compose.yml file defines the following services:
 - django: The Django web application service.
 - celery: The Celery worker service for processing background tasks.
 - frontend: The React.js frontend service.
-
-### Configuration
-The deployment can be configured using environment variables in the docker-compose.yml file. For local development, you can set DEBUG=1 to enable Django's debug mode.
-
-***Important***: Never deploy to production with DEBUG set to True.
-
-### Custom Management Command
-A custom management command create_test_user is included to create a test user when starting the Django service in development mode.
-
-### Volumes
-Persistent data for the PostgreSQL database and shared files between Django and Celery are managed using Docker volumes, as specified in the docker-compose.yml file.
 
 ### Accessing the Application
 Once the containers are up, the following ports will be exposed:
